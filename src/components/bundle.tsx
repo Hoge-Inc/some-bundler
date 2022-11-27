@@ -184,7 +184,7 @@ export default function Bundle() {
       <table className="sweep-list">
         <thead>
             <tr>
-            <th>Token Id</th>
+                <th>Token Id</th>
                 <th>Price</th>
                 <th>Sweep</th>
             </tr>
@@ -222,21 +222,57 @@ export default function Bundle() {
     )
   }
 
+  const buttonClick = async () => {
+    if (!isConnected) {
+      alert("Connect wallet to sweep");
+      return;
+    }
+    if (chain?.id !== 1) {
+      alert(
+        "You are connected to the wrong network. Please use the Ethereum Mainnet."
+      );
+      return;
+    }
+
+    if (!isConnected) {
+      await connector.connect();
+    }
+    setProgressText("");
+    const tokens = selectedTokens.map((token) => {
+      return {
+        tokenId: token.token?.tokenId as string,
+        contract: token.token?.contract as string,
+      };
+    });
+    sweepTokens(sweepTotal, tokens, setProgressText, signer);
+  }
+
   const connector = connectors[0];
 
   return (
     <>
       <WalletConnector />
-
+      <h2>{sweepTotal}</h2>
       <button
+        disabled={selectedTokens.length === 0}
         onClick={() => {
           setProgressText("");
           setSelectedTokens([]);
           setSelectedTokenIds([]);
         }}
-      >
-       Clear Selections
+      > Clear Selections 
       </button>
+      <button
+        disabled={selectedTokens.length === 0}
+        onClick={async()=>buttonClick()}
+      > Sweep Tokens
+      </button>
+      {progressText.length > 0 && (
+        <div className="progress-text">
+          <b>Progress:</b> {progressText}
+        </div>
+      )}
+
 
       <div className="tables">
         {makeTable(citizenTokens, citizenAddress)}
@@ -244,41 +280,7 @@ export default function Bundle() {
         {makeTable(weaponTokens, weaponAddress)}
       </div>
 
-      <button
-        disabled={selectedTokens.length === 0}
-        onClick={async () => {
-          if (!isConnected) {
-            alert("Connect wallet to sweep");
-            return;
-          }
-          if (chain?.id !== 1) {
-            alert(
-              "You are connected to the wrong network. Please use the Ethereum Mainnet."
-            );
-            return;
-          }
 
-          if (!isConnected) {
-            await connector.connect();
-          }
-          setProgressText("");
-          const tokens = selectedTokens.map((token) => {
-            return {
-              tokenId: token.token?.tokenId as string,
-              contract: token.token?.contract as string,
-            };
-          });
-          sweepTokens(sweepTotal, tokens, setProgressText, signer);
-        }}
-      >
-        Sweep Tokens
-      </button>
-
-      {progressText.length > 0 && (
-        <div className="progress-text">
-          <b>Progress:</b> {progressText}
-        </div>
-      )}
     </>
   );
 }

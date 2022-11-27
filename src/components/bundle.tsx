@@ -92,14 +92,14 @@ export default function Bundle() {
 
   const handleOnChange = (token: Token) => {
     const selectedTokenIds = selectedTokens.map(
-      (token) => token.token?.tokenId
+      (token) => token.token?.contract + '/' +  token.token?.tokenId
     );
-    const selected = selectedTokenIds.includes(token.token?.tokenId);
+    const selected = selectedTokenIds.includes(token.token?.contract + '/' + token.token?.tokenId);
     let updatedselectedTokens = selectedTokens.slice();
 
     if (selected) {
       updatedselectedTokens = selectedTokens.filter(
-        (selectedToken) => selectedToken.token?.tokenId !== token.token?.tokenId
+        (selectedToken) => selectedToken.token?.contract + '/' + selectedToken.token?.tokenId !== token.token?.contract + '/' + token.token?.tokenId
       );
     } else {
       updatedselectedTokens.push(token);
@@ -109,7 +109,7 @@ export default function Bundle() {
     const ids: string[] = [];
     updatedselectedTokens.forEach((token) => {
       if (token.token?.tokenId) {
-        ids.push(token.token.tokenId);
+        ids.push(token.token?.contract + '/' + token.token.tokenId);
       }
     });
     setSelectedTokenIds(ids);
@@ -137,7 +137,7 @@ export default function Bundle() {
     return tokens.reduce((total, token) => {
         if (
           token.token &&
-          selectedTokenIds.includes(token.token?.tokenId) &&
+          selectedTokenIds.includes(token.token?.contract + '/' + token.token?.tokenId) &&
           token.market?.floorAsk?.price?.amount?.native
         ) {
           total += token.market.floorAsk.price.amount.native;
@@ -162,6 +162,8 @@ export default function Bundle() {
 
   const makeTable = (tokens: Token[], tokneAddress: string) => {
     const opensea = "https://opensea.io/assets/ethereum/" 
+    
+
     return (      
       <table className="sweep-list">
         <thead>
@@ -186,10 +188,10 @@ export default function Bundle() {
               <label className="container">
                   <input
                     type="checkbox"
-                    value={token.token?.tokenId}
+                    value={token.token?.contract + '/' + token.token?.tokenId}
                     checked={
                       token.token?.tokenId
-                        ? selectedTokenIds.includes(token.token.tokenId)
+                        ? selectedTokenIds.includes(token.token?.contract + '/' + token.token?.tokenId)
                         : false
                     }
                     onChange={() => handleOnChange(token)}

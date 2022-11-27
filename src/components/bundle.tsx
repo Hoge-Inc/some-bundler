@@ -160,7 +160,7 @@ export default function Bundle() {
 
 
 
-  const makeTable = (tokens: Token[], tokneAddress: string) => {
+  const makeTable = (tokens: Token[]) => {
     const opensea = "https://opensea.io/assets/ethereum/" 
     
 
@@ -177,7 +177,7 @@ export default function Bundle() {
         {tokens.map((token, i) => (
             <tr key={i}>
               <td>
-                <a href={opensea + tokneAddress + '/' + token.token?.tokenId} target='_blank'>
+                <a href={opensea + token.token?.contract + '/' + token.token?.tokenId} target='_blank'>
                 
                 <img width={width/8} src={token.token?.image} alt={token.token?.name} />
                 <br/>{token.token?.tokenId} 
@@ -257,9 +257,9 @@ export default function Bundle() {
       > Sweep Tokens
       </button>
       <div className="tables">
-        {makeTable(citizenTokens, citizenAddress)}
-        {makeTable(landTokens, landAddress)}
-        {makeTable(weaponTokens, weaponAddress)}
+        {makeTable(citizenTokens)}
+        {makeTable(landTokens)}
+        {makeTable(weaponTokens)}
       </div>
 
 

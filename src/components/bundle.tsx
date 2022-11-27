@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-
+import  ethIcon  from '../assets/ethIcon.png'
 import getCollectionFloor, { Token } from "./getListings";
 import { useConnect, useSigner, useNetwork, useAccount } from "wagmi";
 import { WalletConnector } from "./utils/walletConnector";
@@ -71,9 +71,11 @@ async function sweepTokens(
 
 
 export default function Bundle() {
+    
   const { data: signer } = useSigner();
   const { isConnected } = useAccount();
   const { connectors } = useConnect();
+  const connector = connectors[0];
   const { chain } = useNetwork();
   const [citizenTokens, setCitizenTokens] = useState<Token[]>([]);
   const [landTokens, setLandTokens] = useState<Token[]>([]);
@@ -81,12 +83,12 @@ export default function Bundle() {
   const [selectedTokens, setSelectedTokens] = useState<Token[]>([]);
   const [selectedTokenIds, setSelectedTokenIds] = useState<string[]>([]);
   const [sweepTotal, setSweepTotal] = useState(0);
-
   const [progressText, setProgressText] = useState("");
 
   const citizenAddress = "0x63d85ec7B1561818Ec03E158ec125a4113038A00"
   const landAddress = "0x17d084106c2f1c716ce39fa015ab022757d30c9a"
   const weaponAddress = "0x1522C212757e65E18832183aB8AfE7F89B8abE0A"
+  
 
   const handleOnChange = (token: Token) => {
     const selectedTokenIds = selectedTokens.map(
@@ -127,42 +129,22 @@ export default function Bundle() {
 
 
   useEffect(() => {
-    const citizenTotal = citizenTokens.reduce((total, token) => {
-      if (
-        token.token &&
-        selectedTokenIds.includes(token.token?.tokenId) &&
-        token.market?.floorAsk?.price?.amount?.native
-      ) {
-        total += token.market.floorAsk.price.amount.native;
-      }
-      return total;
-    }, 0);
-    const landTotal = landTokens.reduce((total, token) => {
-        if (
-          token.token &&
-          selectedTokenIds.includes(token.token?.tokenId) &&
-          token.market?.floorAsk?.price?.amount?.native
-        ) {
-          total += token.market.floorAsk.price.amount.native;
-        }
-        return total;
-      }, 0);
-      const weaponTotal = weaponTokens.reduce((total, token) => {
-        if (
-          token.token &&
-          selectedTokenIds.includes(token.token?.tokenId) &&
-          token.market?.floorAsk?.price?.amount?.native
-        ) {
-          total += token.market.floorAsk.price.amount.native;
-        }
-        return total;
-      }, 0);
-      const newTotal = citizenTotal + landTotal + weaponTotal
-
+    const newTotal = totalCalc(citizenTokens) + totalCalc(landTokens) + totalCalc(weaponTokens)
     setSweepTotal(newTotal);
-  }, [citizenTokens, landTokens, weaponTokens, selectedTokenIds]);
+  }, [selectedTokenIds]);
 
-  
+  const totalCalc = (tokens: Token[]) => {
+    return tokens.reduce((total, token) => {
+        if (
+          token.token &&
+          selectedTokenIds.includes(token.token?.tokenId) &&
+          token.market?.floorAsk?.price?.amount?.native
+        ) {
+          total += token.market.floorAsk.price.amount.native;
+        }
+        return total;
+      }, 0);
+  }
   
 //window sizing
   const [width, setWidth]   = useState(window.innerWidth);
@@ -247,12 +229,17 @@ export default function Bundle() {
     sweepTokens(sweepTotal, tokens, setProgressText, signer);
   }
 
-  const connector = connectors[0];
+  
 
   return (
     <>
       <WalletConnector />
-      <h2>{sweepTotal}</h2>
+      <div className="progress-text">
+        <b>Progress:</b> {progressText}
+      </div>
+      <h2>
+        <img width="35"src={ethIcon} alt="ETH" /> {sweepTotal} 
+      </h2>
       <button
         disabled={selectedTokens.length === 0}
         onClick={() => {
@@ -267,13 +254,6 @@ export default function Bundle() {
         onClick={async()=>buttonClick()}
       > Sweep Tokens
       </button>
-      {progressText.length > 0 && (
-        <div className="progress-text">
-          <b>Progress:</b> {progressText}
-        </div>
-      )}
-
-
       <div className="tables">
         {makeTable(citizenTokens, citizenAddress)}
         {makeTable(landTokens, landAddress)}

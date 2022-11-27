@@ -80,6 +80,10 @@ tr:nth-child(even) {
   background-color: #dddddd;
 }
 
+.tables {
+  display: flex;
+}
+
 /* Customize the label (the container) */
 .container {
   align-content: center;

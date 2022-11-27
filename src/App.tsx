@@ -3,6 +3,7 @@ import { WagmiConfig, createClient, configureChains, defaultChains } from 'wagmi
 import { publicProvider } from 'wagmi/providers/public'
 import { ReservoirKitProvider, darkTheme } from '@reservoir0x/reservoir-kit-ui'
 import Sweep from "./components/sweep";
+import Bundle from './components/bundle';
 
 function App() {
   const { provider, webSocketProvider } = configureChains(defaultChains, [ publicProvider() ])
@@ -24,7 +25,7 @@ function App() {
       theme={theme}
     >
       <WagmiConfig client={wagmiClient}>
-        <Sweep/>
+        <Bundle/>
       </WagmiConfig>
     </ReservoirKitProvider>
   )

@@ -177,8 +177,8 @@ export default function Bundle() {
               <td>
                 <a href={opensea + tokneAddress + '/' + token.token?.tokenId} target='_blank'>
                 
-                <img width={width/8} src={token.token?.image} alt={token.token?.tokenId} />
-                {' ' + token.token?.tokenId} 
+                <img width={width/8} src={token.token?.image} alt={token.token?.name} />
+                <br/>{token.token?.tokenId} 
                 </a>
               </td>
               <td>{token.market?.floorAsk?.price?.amount?.native}</td>

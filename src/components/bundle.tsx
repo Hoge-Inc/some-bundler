@@ -9,6 +9,11 @@ import {
   ReservoirClientActions,
 } from "@reservoir0x/reservoir-kit-client";
 
+interface attributes {
+  attributes: [any]
+}
+
+
 async function sweepTokens(
   sweepTotal: number,
   tokens: Parameters<ReservoirClientActions["buyToken"]>["0"]["tokens"],
@@ -255,7 +260,7 @@ export default function Bundle() {
   }
 
   const Items = (address: string) => {
-    const [attributes, setAttributes] = useState<[]>()
+    const [attributes, setAttributes] = useState<attributes>()
     
 
     // This function is triggered when the select changes
@@ -277,7 +282,7 @@ export default function Bundle() {
         }
         getAttributes()
     },[])
-  
+
     return <select onChange={selectChange}>
         <option value="">Floor</option>
         {

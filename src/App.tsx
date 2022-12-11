@@ -2,8 +2,8 @@ import './App.css'
 import { WagmiConfig, createClient, configureChains, defaultChains } from 'wagmi'
 import { publicProvider } from 'wagmi/providers/public'
 import { ReservoirKitProvider, darkTheme } from '@reservoir0x/reservoir-kit-ui'
-import Sweep from "./components/sweep";
 import Bundle from './components/bundle';
+
 
 function App() {
   const { provider, webSocketProvider } = configureChains(defaultChains, [ publicProvider() ])
@@ -17,6 +17,16 @@ function App() {
   })
 
   return (
+    <h1>
+      API limit reached. Maintance mode.
+    </h1>
+
+  )
+}
+
+export default App
+
+/*
     <ReservoirKitProvider 
       options={{ 
         apiBase: 'https://api.reservoir.tools', 
@@ -24,11 +34,10 @@ function App() {
       }}
       theme={theme}
     >
+
       <WagmiConfig client={wagmiClient}>
+        
         <Bundle/>
       </WagmiConfig>
     </ReservoirKitProvider>
-  )
-}
-
-export default App
+*/

@@ -71,7 +71,7 @@ async function sweepTokens(
 
 
 export default function Bundle() {
-    
+  
   const { data: signer } = useSigner();
   const { isConnected } = useAccount();
   const { connectors } = useConnect();
@@ -84,7 +84,9 @@ export default function Bundle() {
   const [selectedTokenIds, setSelectedTokenIds] = useState<string[]>([]);
   const [sweepTotal, setSweepTotal] = useState(0);
   const [progressText, setProgressText] = useState("");
-
+  const [selectedCitizenOption, setSelectedCitizenOption] = useState<string>('Floor');
+  const [selectedLandOption, setSelectedLandOption] = useState<string>('Floor');
+  const [selectedWeaponOption, setSelectedWeaponOption] = useState<string>('Floor');
   const citizenAddress = "0x63d85ec7B1561818Ec03E158ec125a4113038A00"
   const landAddress = "0x17d084106c2f1c716ce39fa015ab022757d30c9a"
   const weaponAddress = "0x1522C212757e65E18832183aB8AfE7F89B8abE0A"
@@ -115,17 +117,38 @@ export default function Bundle() {
     setSelectedTokenIds(ids);
   };
 
+
+//needs fix
+
   useEffect(() => {
-    getCollectionFloor(citizenAddress).then((tokens) => {
+    if (selectedCitizenOption === 'Floor') {
+      getCollectionFloor(citizenAddress).then((tokens) => {
         setCitizenTokens(tokens); 
-    });
-    getCollectionFloor(landAddress).then((tokens) => {
+      });
+    } else {
+      getCollectionFloor(citizenAddress, selectedCitizenOption).then((tokens) => {
+        setCitizenTokens(tokens); 
+      });
+    }
+    if (selectedLandOption === 'Floor') {
+      getCollectionFloor(landAddress).then((tokens) => {
         setLandTokens(tokens); 
     });
-    getCollectionFloor(weaponAddress).then((tokens) => {
-        setWeaponTokens(tokens); 
+    } else {
+      getCollectionFloor(landAddress, selectedLandOption).then((tokens) => {
+        setLandTokens(tokens); 
     });
-  }, []);
+    }
+    if (selectedWeaponOption === 'Floor') {
+      getCollectionFloor(weaponAddress).then((tokens) => {
+        setWeaponTokens(tokens); 
+      });
+    } else {
+      getCollectionFloor(weaponAddress, selectedWeaponOption).then((tokens) => {
+        setWeaponTokens(tokens); 
+      });
+    }
+  }, [selectedCitizenOption,selectedLandOption,selectedWeaponOption]);
 
 
   useEffect(() => {
@@ -160,12 +183,12 @@ export default function Bundle() {
 
 
 
-  const makeTable = (tokens: Token[]) => {
-    const opensea = "https://opensea.io/assets/ethereum/" 
+  const makeTable = (tokens: Token[], _address:string) => {
+    const opensea = "https://opensea.io/assets/ethereum/"   
     
-
-    return (      
+    return ( <div>     {Items(_address)} 
       <table className="sweep-list">
+        
         <thead>
             <tr>
                 <th>Token Id</th>
@@ -203,7 +226,7 @@ export default function Bundle() {
         ))}
         </tbody>
       </table>
-    )
+      </div>)
   }
 
   const buttonClick = async () => {
@@ -231,7 +254,43 @@ export default function Bundle() {
     sweepTokens(sweepTotal, tokens, setProgressText, signer);
   }
 
+  const Items = (address: string) => {
+    const [attributes, setAttributes] = useState<[]>()
+    
+
+    // This function is triggered when the select changes
+    const selectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+      const value = event.target.value;
+      if (address === citizenAddress) setSelectedCitizenOption(value);
+      if (address === landAddress) setSelectedLandOption(value);
+      if (address === weaponAddress) setSelectedWeaponOption(value);
+      
+    };
+    useEffect(()=>{
+        const options = {method: 'GET', headers: {accept: '*/*', 'x-api-key': import.meta.env.VITE_RESERVOIR_API_KEY }};        
+        const getAttributes = async () => {
+            const url = 'https://api.reservoir.tools/collections/' + address + '/attributes/all/v2'
+            await fetch(url, options)
+            .then(response => response.json())
+            .then(response => setAttributes(response))
+            .catch(err => console.error(err));
+        }
+        getAttributes()
+    },[])
   
+    return <select onChange={selectChange}>
+        <option value="">Floor</option>
+        {
+            (attributes !== undefined) ? (
+                attributes.attributes.map((options:any) => (
+                    <option key={options.key} value={options.key}>
+                        {options.key}
+                    </option>
+                ))
+            ) : <></>
+        }
+    </select>
+  }
 
   return (
     <>
@@ -256,10 +315,11 @@ export default function Bundle() {
         onClick={async()=>buttonClick()}
       > Sweep Tokens
       </button>
+      <p/>
       <div className="tables">
-        {makeTable(citizenTokens)}
-        {makeTable(landTokens)}
-        {makeTable(weaponTokens)}
+        {makeTable(citizenTokens, citizenAddress)}
+        {makeTable(landTokens, landAddress)}
+        {makeTable(weaponTokens, weaponAddress)}
       </div>
 
 
